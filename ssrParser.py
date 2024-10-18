@@ -1,14 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
-from pydantic import BaseModel, ValidationError, Field
+from pydantic import BaseModel
 from typing import List, Optional
 
 SSR_URL = "https://www.nasa.gov/rss/dyn/breaking_news.rss"
 
-NO_DATA = 'No data'
+NO_DATA = "No data"
+
 
 class MissingDataError(Exception):
     pass
+
 
 class RSSItem(BaseModel):
     title: str
@@ -18,12 +20,14 @@ class RSSItem(BaseModel):
     publish_date: Optional[str]
     content: Optional[str]
 
+
 class RSSChannel(BaseModel):
     title: str
     link: str
     description: str
     language: Optional[str]
     items: List[RSSItem]
+
 
 def fetch_ssr(url):
     try:
@@ -54,7 +58,9 @@ def parse_ssr(ssr_content):
             title=parse_item(channel, "title"),
             link=parse_item(channel, "link"),
             description=parse_item(channel, "description"),
-            language=parse_item(channel, "language") if channel.find("language") else None,
+            language=(
+                parse_item(channel, "language") if channel.find("language") else None
+            ),
             items=[],
         )
 
@@ -79,9 +85,11 @@ def parse_ssr(ssr_content):
         print(f"Error while parsing channel: {e}")
         return []
 
+
 def display_content(content):
     soup = BeautifulSoup(content, "html.parser")
     return soup.get_text(strip=True)
+
 
 def display_feed(channel):
     print(f"Channel Title: {channel.title}")
@@ -89,18 +97,22 @@ def display_feed(channel):
     print(f"Channel Description: {channel.description}\n")
 
     for i, feed_item in enumerate(channel.items):
-        print(f"Item {i + 1}\n"
-              f"Title: {feed_item.title}\n"
-              f"Link: {feed_item.link}\n"
-              f"Creator: {feed_item.creator}\n"
-              f"Publish Date: {feed_item.publish_date}\n"
-              f"Description: {feed_item.description}\n"
-              f"Content: {display_content(feed_item.content)}\n")
-        print('*' * 20)
+        print(
+            f"Item {i + 1}\n"
+            f"Title: {feed_item.title}\n"
+            f"Link: {feed_item.link}\n"
+            f"Creator: {feed_item.creator}\n"
+            f"Publish Date: {feed_item.publish_date}\n"
+            f"Description: {feed_item.description}\n"
+            f"Content: {display_content(feed_item.content)}\n"
+        )
+        print("*" * 20)
+
 
 xml_content = fetch_ssr(SSR_URL)
 
 parse_ssr(xml_content)
+
 
 def init():
     try:
@@ -116,6 +128,6 @@ def init():
     except MissingDataError as e:
         print(f"Error while parsing feed: {e}")
 
+
 if __name__ == "__main__":
     init()
-
