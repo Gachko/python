@@ -53,27 +53,3 @@ def get_user_subscriptions(request, user_id):
         return JsonResponse(subscription_data, safe=False)
     except User.DoesNotExist:
         return JsonResponse({"error": "No such user exists."}, status=404)
-
-# Page not found
-@csrf_exempt
-def toggle_subscription(request):
-    if request.method == 'PATCH':
-        body = request.body.decode('utf-8')
-        patch_data = QueryDict(body)
-        user_id = patch_data.get('user_id')
-        channel_id = patch_data.get('channel_id')
-        activate = patch_data.get('activate') == 'true'
-        print(patch_data, 'patch_data')
-        user = get_object_or_404(User, id=user_id)
-        channel = get_object_or_404(RSSChannel, id=channel_id)
-
-        try:
-            subscription = Subscription.objects.get(user=user, channel=channel)
-            subscription.active = activate
-            subscription.save()
-            status_message = "Activated" if activate else "Deactivated"
-            return JsonResponse({"message": f"Subscription {status_message}."}, status=200)
-        except Subscription.DoesNotExist:
-            return JsonResponse({"error": "The user is not subscribed to this channel."}, status=400)
-
-    return JsonResponse({"error": "Method Not Allowed."}, status=405)
