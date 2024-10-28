@@ -4,7 +4,7 @@ from user.models import User
 
 
 class RSSChannel(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255, db_index=True)
     link = models.URLField(max_length=255)
     description = models.TextField()
@@ -20,7 +20,7 @@ class RSSChannel(models.Model):
 
 
 class RSSItem(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255, db_index=True)
     link = models.URLField(max_length=255)
     creator = models.CharField(max_length=255, blank=True, null=True)
@@ -41,7 +41,8 @@ class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     channel = models.ForeignKey(RSSChannel, on_delete=models.CASCADE)
-    subscribed_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('user', 'channel')
