@@ -1,12 +1,14 @@
 from django.urls import path
-from .views import (get_all_channels,
-                    subscribe_to_channel,
-                    unsubscribe_from_channel,
-                    get_user_subscriptions)
+from .views import (
+    ChannelListView,
+    SubscribeToChannelView,
+    UnsubscribeFromChannelView,
+    UserSubscriptionsView,
+)
 
 urlpatterns = [
-    path("api/channels/", get_all_channels, name='get_all_channels'),
-    path("api/subscribe/", subscribe_to_channel, name='subscribe_to_channel'),
-    path("api/unsubscribe/", unsubscribe_from_channel, name='unsubscribe_from_channel'),
-    path("api/subscriptions/<int:user_id>/", get_user_subscriptions, name='get_user_subscriptions'),
+    path('api/channels/', ChannelListView.as_view(), name='channel-list'),
+    path('api/subscribe/', SubscribeToChannelView.as_view(), name='subscribe-to-channel'),
+    path('api/unsubscribe/', UnsubscribeFromChannelView.as_view(), name='unsubscribe-from-channel'),
+    path('api/subscriptions/<int:user_id>/', UserSubscriptionsView.as_view(), name='user-subscriptions'),
 ]

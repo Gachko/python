@@ -1,55 +1,58 @@
 from django.http import JsonResponse, QueryDict
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import RSSChannelSerializer, RSSItemSerializer
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from .models import RSSChannel, Subscription
 from user.models import User
 
-def get_all_channels(request):
-    channels = RSSChannel.objects.all().values()
-    return JsonResponse(list(channels), safe=False)
+class ChannelListView(APIView):
+    def get(self, request):
+        channels = RSSChannel.objects.all()
+        serializer = RSSChannelSerializer(channels, many=True)
+        return Response(serializer.data)
 
-@csrf_exempt
-def subscribe_to_channel(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        channel_id = request.POST.get('channel_id')
-        print(user_id, channel_id, 'hereee')
+class SubscribeToChannelView(APIView):
+    def post(self, request):
+        user_id = request.data.get('user_id')
+        channel_id = request.data.get('channel_id')
+
         user = get_object_or_404(User, id=user_id)
         channel = get_object_or_404(RSSChannel, id=channel_id)
 
-
         if Subscription.objects.filter(user=user, channel=channel).exists():
-            return JsonResponse({"error": "The user is already subscribed to this channel."}, status=400)
-
+            return Response({"error": "The user is already subscribed to this channel."}, status=status.HTTP_400_BAD_REQUEST)
 
         Subscription.objects.create(user=user, channel=channel)
-        return JsonResponse({"message": "Successfully subscribed to the channel."}, status=201)
+        return Response({"message": "Successfully subscribed to the channel.", "channel": channel.title}, status=status.HTTP_201_CREATED)
 
-    return JsonResponse({"error": "Method Not Allowed"}, status=405)
-
-@csrf_exempt
-def unsubscribe_from_channel(request):
-    if request.method == 'DELETE':
+class UnsubscribeFromChannelView(APIView):
+    def delete(self, request):
         user_id = request.GET.get('user_id')
         channel_id = request.GET.get('channel_id')
+
         user = get_object_or_404(User, id=user_id)
         channel = get_object_or_404(RSSChannel, id=channel_id)
 
         try:
             subscription = Subscription.objects.get(user=user, channel=channel)
-            subscription.delete()
-            return JsonResponse({"message": "Successfully unsubscribed from the channel."}, status=200)
         except Subscription.DoesNotExist:
-            return JsonResponse({"error": "The user is not subscribed to this channel."}, status=400)
+            return Response({"error": "The user is not subscribed to this channel."}, status=status.HTTP_400_BAD_REQUEST)
 
-    return JsonResponse({"error": "Method Not Allowed"}, status=405)
+        subscription.delete()
+        return Response({"message": "Successfully unsubscribed from the channel."}, status=status.HTTP_200_OK)
 
-def get_user_subscriptions(request, user_id):
-    try:
-        user = get_object_or_404(User, id=user_id)
-        subscriptions = Subscription.objects.filter(user=user, active=True).select_related('channel')
-        subscription_data = [{"channel": subscription.channel.title, "channel_id": subscription.channel.id} for subscription in subscriptions]
+class UserSubscriptionsView(APIView):
+    def get(self, request, user_id):
+        with_items = request.GET.get('items', 'false').lower() == 'true'
+        try:
+            subscriptions = Subscription.objects.filter(user_id=user_id, active=True).select_related('channel')
+            channels = [subscription.channel for subscription in subscriptions]
 
-        return JsonResponse(subscription_data, safe=False)
-    except User.DoesNotExist:
-        return JsonResponse({"error": "No such user exists."}, status=404)
+            serialized_data = RSSChannelSerializer(channels, many=True, context={'with_items': with_items}).data
+            return Response(serialized_data)
+
+        except User.DoesNotExist:
+            return Response({"error": "No such user exists."}, status=status.HTTP_404_NOT_FOUND)
