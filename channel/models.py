@@ -49,3 +49,22 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"{self.user.username} -> {self.channel.title}"
+
+
+class ItemStatus(models.Model):
+    READ_STATUS_CHOICES = (
+        ('read', 'Read'),
+        ('unread', 'Unread')
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(RSSItem, on_delete=models.CASCADE, related_name='statuses')
+    status = models.CharField(max_length=10, choices=READ_STATUS_CHOICES, default='unread')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'item')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.item.title} -> {self.status}"
