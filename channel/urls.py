@@ -1,16 +1,22 @@
 from django.urls import path
 from .views import (
-    ChannelListView,
-    SubscribeToChannelView,
-    UnsubscribeFromChannelView,
-    UserSubscriptionsView,
-    UpdateItemStatusView
+    GetAllChannelsView,
+    PostSubscribeToChannelView,
+    DeleteSubscriptionToChannelView,
+    GetUserSubscriptionsView,
+    PostItemStatusView,
+    GetChannelView,
+    GetItemsView,
+    GetItemView
 )
 
 urlpatterns = [
-    path('api/channels/', ChannelListView.as_view(), name='channel-list'),
-    path('api/subscribe/', SubscribeToChannelView.as_view(), name='subscribe-to-channel'),
-    path('api/unsubscribe/', UnsubscribeFromChannelView.as_view(), name='unsubscribe-from-channel'),
-    path('api/subscriptions/<int:user_id>/', UserSubscriptionsView.as_view(), name='user-subscriptions'),
-    path('api/channel/updateStatus/', UpdateItemStatusView.as_view(), name='update-item-status'),
+    path('channels/', GetAllChannelsView.as_view(), name='get-all-channels'),
+    path('channels/<int:channel_id>/', GetChannelView.as_view(), name='get-channel'),
+    path('channels/<int:channel_id>/items/', GetItemsView.as_view(), name='get-items'),
+    path('channels/<int:channel_id>/items/<int:item_id>/', GetItemView.as_view(), name='get-item'),
+    path('channels/subscribe/', PostSubscribeToChannelView.as_view(), name='post-subscribe-to-channel'),
+    path('channels/subscribe/', DeleteSubscriptionToChannelView.as_view(), name='delete-subscription-to-channel'),
+    path('channels/subscriptions/<int:user_id>/', GetUserSubscriptionsView.as_view(), name='get-user-subscriptions'),
+    path('channel/<int:channel_id>/item/<int:item_id>/', PostItemStatusView.as_view(), name='post-item-status'),
 ]
