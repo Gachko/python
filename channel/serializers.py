@@ -13,6 +13,10 @@ class RSSItemSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(source='created_at', read_only=True)
     updated = serializers.DateTimeField(source='updated_at', read_only=True)
 
+    class Meta:
+        model = RSSItem
+        fields = '__all__'
+
 
 class RSSChannelSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(source='created_at')

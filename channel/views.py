@@ -1,12 +1,17 @@
 from django.http import JsonResponse, QueryDict
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import RSSItem, RSSChannel, Subscription, ItemStatus
 from .serializers import RSSChannelSerializer, RSSItemSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.views.decorators.csrf import csrf_exempt
-from user.models import User
+from user.models import CustomUser
 from .service import (
     get_channels,
     subscribe_to_channel,
@@ -46,11 +51,13 @@ class GetItemView(APIView):
 
 
 class PostSubscribeToChannelView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        user_id = request.data.get('user_id')
         channel_id = request.data.get('channel_id')
 
-        user = get_object_or_404(User, id=user_id)
+        user = request.user
         channel = get_object_or_404(RSSChannel, id=channel_id)
 
         if Subscription.objects.filter(user=user, channel=channel).exists():
@@ -60,13 +67,14 @@ class PostSubscribeToChannelView(APIView):
 
         return Response({"message": "Successfully subscribed to the channel."}, status=status.HTTP_201_CREATED)
 
-
 class DeleteSubscriptionToChannelView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request):
-        user_id = request.GET.get('user_id')
         channel_id = request.GET.get('channel_id')
 
-        user = get_object_or_404(User, id=user_id)
+        user = request.user
         channel = get_object_or_404(RSSChannel, id=channel_id)
 
         try:
@@ -80,10 +88,14 @@ class DeleteSubscriptionToChannelView(APIView):
 
 
 class GetUserSubscriptionsView(APIView):
-    def get(self, request, user_id):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        print('ffff')
         with_items = request.GET.get('items', 'false').lower() == 'true'
 
-        user = get_object_or_404(User, id=user_id)
+        user = request.user
 
         channels = user_subscriptions(user)
 
@@ -93,12 +105,14 @@ class GetUserSubscriptionsView(APIView):
 
 
 class PostItemStatusView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, channel_id, item_id):
-        user_id = request.data.get('user_id')
+        user = request.user
         status_value = request.data.get('status')
 
         item = get_object_or_404(RSSItem, id=item_id, channel_id=channel_id)
-        user = get_object_or_404(User, id=user_id)
 
         if not Subscription.objects.filter(user=user, channel=item.channel, active=True).exists():
             return Response({"error": "User is not subscribed to the channel of this item."}, status=status.HTTP_403_FORBIDDEN)

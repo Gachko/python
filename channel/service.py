@@ -2,8 +2,7 @@ from django.shortcuts import get_object_or_404
 from .models import RSSChannel, Subscription, ItemStatus, RSSItem
 
 def get_channels():
-    channels = RSSChannel.objects.all()
-    return serializer.data
+    return RSSChannel.objects.all()
 
 
 def subscribe_to_channel(user, channel):

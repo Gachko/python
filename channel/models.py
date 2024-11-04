@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-from user.models import User
+from user.models import CustomUser
 
 
 class RSSChannel(models.Model):
@@ -12,7 +12,7 @@ class RSSChannel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     subscribed_channels = models.ManyToManyField(
-        User, through='Subscription', related_name='subscribed_channels', blank=True
+        CustomUser, through='Subscription', related_name='subscribed_channels', blank=True
     )
 
     def __str__(self):
@@ -38,7 +38,7 @@ class RSSItem(models.Model):
 
 
 class Subscription(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     channel = models.ForeignKey(RSSChannel, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -57,7 +57,7 @@ class ItemStatus(models.Model):
         ('unread', 'Unread')
     )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     item = models.ForeignKey(RSSItem, on_delete=models.CASCADE, related_name='statuses')
     status = models.CharField(max_length=10, choices=READ_STATUS_CHOICES, default='unread')
     created_at = models.DateTimeField(auto_now_add=True)
