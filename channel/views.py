@@ -38,6 +38,13 @@ class ChannelViewSet(viewsets.ViewSet):
         serializer = RSSChannelSerializer(channel)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def create(self, request):
+        serializer = RSSChannelSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class ItemViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 

@@ -23,6 +23,9 @@ class RSSChannelSerializer(serializers.Serializer):
     updated = serializers.DateTimeField(source='updated_at', read_only=True)
     items = RSSItemSerializer(many=True, read_only=True)
 
+    def create(self, validated_data):
+        return RSSChannel.objects.create(**validated_data)
+
 
 class SubscriptionSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
