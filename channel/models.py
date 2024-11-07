@@ -39,7 +39,6 @@ class RSSItem(models.Model):
 
 class Subscription(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
     channel = models.ForeignKey(RSSChannel, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

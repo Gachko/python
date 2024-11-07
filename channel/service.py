@@ -14,7 +14,7 @@ def unsubscribe_from_channel(subscription):
 
 
 def user_subscriptions(user_id):
-    subscriptions = Subscription.objects.filter(user_id=user_id, active=True).select_related('channel')
+    subscriptions = Subscription.objects.filter(user_id=user_id).select_related('channel')
     channels = [subscription.channel for subscription in subscriptions]
 
     return channels
