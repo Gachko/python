@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from .serializers import CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -42,7 +43,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("channel.urls")),
     path("api/users/", include("user.urls")),
-    path("api/token/", TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path("api/token/", TokenObtainPairView.as_view(serializer_class=CustomTokenObtainPairSerializer), name='token_obtain_pair'),
     path("api/token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
      path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="swagger-ui")
 ]
