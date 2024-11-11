@@ -5,6 +5,8 @@ class RoleSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=50)
     description = serializers.CharField(allow_blank=True)
+    def create(self, validated_data):
+        return Role.objects.create(**validated_data)
 
 class UserSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)

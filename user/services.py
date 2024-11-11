@@ -8,3 +8,7 @@ def update_user_roles(user_id, role_ids):
 
     user.roles.set(roles)
     user.save()
+
+
+def create_role(data):
+    return Role.objects.create(**data)
