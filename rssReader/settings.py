@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "user",
     "channel",
+    "drf_yasg",
     "rest_framework",
     "rest_framework_simplejwt",
     "authapp",
