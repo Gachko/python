@@ -1,16 +1,13 @@
-from django.urls import path
-from .views import (
-    ChannelListView,
-    SubscribeToChannelView,
-    UnsubscribeFromChannelView,
-    UserSubscriptionsView,
-    UpdateItemStatusView
-)
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ChannelViewSet, ItemViewSet, SubscriptionViewSet, ItemStatusViewSet
+
+router = DefaultRouter()
+router.register(r'channels', ChannelViewSet, basename='channels')
+router.register(r'channels/(?P<channel_id>\d+)/items', ItemViewSet, basename='channel-items')
+router.register(r'subscribe', SubscriptionViewSet, basename='subscriptions')
+router.register(r'channel/(?P<channel_id>\d+)/item/(?P<item_id>\d+)/status', ItemStatusViewSet, basename='item-status')
 
 urlpatterns = [
-    path('api/channels/', ChannelListView.as_view(), name='channel-list'),
-    path('api/subscribe/', SubscribeToChannelView.as_view(), name='subscribe-to-channel'),
-    path('api/unsubscribe/', UnsubscribeFromChannelView.as_view(), name='unsubscribe-from-channel'),
-    path('api/subscriptions/<int:user_id>/', UserSubscriptionsView.as_view(), name='user-subscriptions'),
-    path('api/channel/updateStatus/', UpdateItemStatusView.as_view(), name='update-item-status'),
+    path('', include(router.urls)),
 ]

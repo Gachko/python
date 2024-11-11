@@ -5,7 +5,10 @@ from django.contrib import admin
 class RSSItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title')
 
-admin.site.register(RSSChannel)
+class RSSChannelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title')
+
+admin.site.register(RSSChannel, RSSChannelAdmin)
 admin.site.register(RSSItem, RSSItemAdmin)
 admin.site.register(Subscription)
 admin.site.register(ItemStatus)
