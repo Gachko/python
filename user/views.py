@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from .services import update_user_roles
@@ -21,8 +22,8 @@ class UserRoleViewSet(viewsets.ViewSet):
 
         try:
             update_user_roles(user_id, role_ids)
-            channels = CustomUser.objects.all()
-            serializer = UserSerializer(channels, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            user = get_object_or_404(CustomUser.objects.all(), id=user_id)
+            user_serializer = UserSerializer(user)
+            return Response(user_serializer.data, status=status.HTTP_200_OK)
         except ValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

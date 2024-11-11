@@ -10,6 +10,6 @@ class UserSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     username = serializers.CharField(max_length=255)
     email = serializers.EmailField()
-    roles = RoleSerializer(many=True)
+    roles = serializers.SerializerMethodField()
     def get_roles(self, obj):
         return [role.name for role in obj.roles.all()]
