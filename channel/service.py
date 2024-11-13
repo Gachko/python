@@ -4,6 +4,8 @@ from .models import RSSChannel, Subscription, ItemStatus, RSSItem
 def get_channels():
     return RSSChannel.objects.all()
 
+def create_rss_channel(data):
+    return RSSChannel.objects.create(**data)
 
 def subscribe_to_channel(user, channel):
     Subscription.objects.create(user=user, channel=channel)

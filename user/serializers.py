@@ -1,7 +1,17 @@
-from django.contrib.auth.models import User
+from .models import CustomUser, Role
 from rest_framework import serializers
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email']
+class RoleSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=50)
+    description = serializers.CharField(allow_blank=True)
+    def create(self, validated_data):
+        return Role.objects.create(**validated_data)
+
+class UserSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    username = serializers.CharField(max_length=255)
+    email = serializers.EmailField()
+    roles = serializers.SerializerMethodField()
+    def get_roles(self, obj):
+        return [role.name for role in obj.roles.all()]

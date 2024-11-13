@@ -19,7 +19,8 @@ from .service import (
     subscribe_to_channel,
     unsubscribe_from_channel,
     user_subscriptions,
-    update_item_status
+    update_item_status,
+    create_rss_channel
 )
 
 class ChannelViewSet(viewsets.ViewSet):
@@ -40,10 +41,10 @@ class ChannelViewSet(viewsets.ViewSet):
 
     def create(self, request):
         serializer = RSSChannelSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        channel = create_rss_channel(serializer.validated_data)
+        response_serializer = RSSChannelSerializer(channel)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
 class ItemViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
